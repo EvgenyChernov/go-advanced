@@ -1,7 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+
+	go printHi()
+	fmt.Println("Hello, World!2")
+	time.Sleep(1 * time.Second)
+}
+
+func printHi() {
+	fmt.Println("Hello, goroutine!")
 }
