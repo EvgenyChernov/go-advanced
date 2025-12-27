@@ -3,23 +3,29 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 )
 
 func main() {
-
+	t := time.Now()
 	go printHi()
 	fmt.Println("Hello, World!2")
+	wg := sync.WaitGroup{}
+	for range 10 {
+		wg.Add(1)
 
-	for i := 0; i < 10; i++ {
-		go printGoogle()
+		go func() {
+			defer wg.Done()
+			printGoogle()
+		}()
 	}
 
-	time.Sleep(2 * time.Second)
+	wg.Wait()
+	fmt.Println(time.Since(t))
 }
 
 func printGoogle() {
-	t := time.Now()
 	resp, err := http.Get("https://www.google.com")
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -27,7 +33,7 @@ func printGoogle() {
 	}
 	defer resp.Body.Close()
 	fmt.Println(resp.StatusCode)
-	fmt.Println(time.Since(t))
+
 }
 
 func printHi() {
