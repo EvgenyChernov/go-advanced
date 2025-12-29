@@ -3,12 +3,27 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"sync"
 )
 
 func main() {
 	code := make(chan int)
-	go printGoogle(code)
-	fmt.Println(<-code)
+	wg := sync.WaitGroup{}
+	for range 10 {
+		wg.Add(1)
+		go func() {
+			printGoogle(code)
+			wg.Done()
+		}()
+	}
+	go func() {
+		wg.Wait()
+		close(code)
+	}()
+	for res := range code {
+		fmt.Println(res)
+	}
+
 }
 
 func printGoogle(code chan int) {
