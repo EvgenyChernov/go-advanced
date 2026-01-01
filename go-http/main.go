@@ -10,7 +10,12 @@ func hello(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", hello)
-	fmt.Println("Server is running on port 8081")
-	http.ListenAndServe(":8081", nil)
+	router := http.NewServeMux()
+	router.HandleFunc("/", hello)
+
+	server := &http.Server{
+		Addr:    ":8081",
+		Handler: router,
+	}
+	server.ListenAndServe()
 }
