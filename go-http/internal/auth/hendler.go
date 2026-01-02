@@ -2,7 +2,7 @@ package auth
 
 import (
 	"app/adv-http/configs"
-	"encoding/json"
+	"app/adv-http/pkg/response"
 	"fmt"
 	"net/http"
 )
@@ -26,13 +26,10 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		secret := handler.Config.Auth.Secret
 		fmt.Println(secret)
-		res := LoginResponse{
-			Token: "1234567890",
+		data := LoginResponse{
+			Token: secret,
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(201)
-		json.NewEncoder(w).Encode(res)
-
+		response.JsonResponse(w, data, 200)
 	}
 }
 
