@@ -6,6 +6,7 @@ import (
 
 	"app/adv-http/configs"
 	"app/adv-http/internal/auth"
+	"app/adv-http/internal/link"
 	"app/adv-http/pkg/db"
 )
 
@@ -18,6 +19,9 @@ func main() {
 	auth.NewAuthHandler(router, &auth.AuthHendlerDeps{
 		Config: config,
 	})
+
+	link.NewLinkHandler(router, &link.LinkHendlerDeps{})
+
 	fmt.Println("Server is running on port 8081")
 	server := &http.Server{
 		Addr:    ":8081",
