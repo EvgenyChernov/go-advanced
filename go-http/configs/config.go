@@ -43,7 +43,7 @@ func LoadConfig() *Config {
 	// Если переменные не заданы, будут пустые строки
 	return &Config{
 		Db: DbConfig{
-			Dsn: getEnv("DB_DSN", ""),
+			Dsn: getEnv("DSN", ""),
 		},
 		Auth: AuthConfig{
 			Secret: getEnv("TOKEN", ""),

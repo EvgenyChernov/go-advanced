@@ -6,11 +6,13 @@ import (
 
 	"app/adv-http/configs"
 	"app/adv-http/internal/auth"
+	"app/adv-http/pkg/db"
 )
 
 func main() {
 
 	config := configs.LoadConfig()
+	_ = db.NewDB(config)
 	router := http.NewServeMux()
 	// hello.NewHelloHandler(router)
 	auth.NewAuthHandler(router, &auth.AuthHendlerDeps{
