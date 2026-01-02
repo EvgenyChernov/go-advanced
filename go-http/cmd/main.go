@@ -13,14 +13,20 @@ import (
 func main() {
 
 	config := configs.LoadConfig()
-	_ = db.NewDB(config)
+	database := db.NewDB(config)
 	router := http.NewServeMux()
+
+	// repositories
+	linkRepository := link.NewLinkRepository(database)
+
 	// hello.NewHelloHandler(router)
 	auth.NewAuthHandler(router, &auth.AuthHendlerDeps{
 		Config: config,
 	})
 
-	link.NewLinkHandler(router, &link.LinkHendlerDeps{})
+	link.NewLinkHandler(router, link.LinkHendlerDeps{
+		LinkRepository: linkRepository,
+	})
 
 	fmt.Println("Server is running on port 8081")
 	server := &http.Server{

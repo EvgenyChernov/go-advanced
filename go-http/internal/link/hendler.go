@@ -5,11 +5,17 @@ import (
 	"net/http"
 )
 
-type LinkHendlerDeps struct{}
-type LinkHandler struct{}
+type LinkHendlerDeps struct {
+	LinkRepository *LinkRepository
+}
+type LinkHandler struct {
+	LinkRepository *LinkRepository
+}
 
-func NewLinkHandler(router *http.ServeMux, deps *LinkHendlerDeps) {
-	handler := &LinkHandler{}
+func NewLinkHandler(router *http.ServeMux, deps LinkHendlerDeps) {
+	handler := &LinkHandler{
+		LinkRepository: deps.LinkRepository,
+	}
 	router.HandleFunc("POST /link", handler.Create())
 	router.HandleFunc("PATCH /link/{id}", handler.Update())
 	router.HandleFunc("DELETE /link/{id}", handler.Delete())
@@ -18,7 +24,10 @@ func NewLinkHandler(router *http.ServeMux, deps *LinkHendlerDeps) {
 
 func (handler *LinkHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-
+		// handler.LinkRepository.Create(&Link{
+		// 	URL:  req.URL.String(),
+		// 	Hash: req.URL.Path,
+		// })
 	}
 }
 
