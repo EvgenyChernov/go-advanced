@@ -2,12 +2,10 @@ package auth
 
 import (
 	"app/adv-http/configs"
+	"app/adv-http/pkg/request"
 	"app/adv-http/pkg/response"
-	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"github.com/go-playground/validator/v10"
 )
 
 type AuthHendlerDeps struct {
@@ -27,9 +25,11 @@ func NewAuthHandler(router *http.ServeMux, deps *AuthHendlerDeps) {
 
 func (handler *AuthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-
-		fmt.Println(payload)
-
+		body, err := request.HandleBody[LoginRequest](w, req)
+		if err != nil {
+			return
+		}
+		fmt.Println(body)
 		secret := handler.Config.Auth.Secret
 		fmt.Println(secret)
 		data := LoginResponse{
@@ -41,6 +41,11 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 
 func (handler *AuthHandler) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		fmt.Fprintf(w, "Register!")
+		body, err := request.HandleBody[RegisterRequest](w, req)
+		if err != nil {
+			return
+		}
+		fmt.Println(body)
+		response.JsonResponse(w, "Register successful", 200)
 	}
 }
