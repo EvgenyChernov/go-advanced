@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"regexp"
 )
 
 type AuthHendlerDeps struct {
@@ -31,6 +32,11 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 		err := json.NewDecoder(req.Body).Decode(&payload)
 		if err != nil {
 			response.JsonResponse(w, err.Error(), 402)
+			return
+		}
+		match, _ := regexp.MatchString(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, payload.Email)
+		if !match {
+			response.JsonResponse(w, "Invalid email", 402)
 			return
 		}
 
