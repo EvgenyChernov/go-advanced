@@ -1,0 +1,31 @@
+package link
+
+import (
+	"math/rand"
+
+	"gorm.io/gorm"
+)
+
+type Link struct {
+	gorm.Model
+	URL  string `json:"url"`
+	Hash string `gorm:"uniqueIndex" json:"hash"`
+}
+
+func newLink(url string) *Link {
+	return &Link{
+		URL:  url,
+		Hash: RandStringRunes(10),
+	}
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+func RandStringRunes(n int) string {
+
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
