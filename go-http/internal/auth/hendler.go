@@ -2,6 +2,7 @@ package auth
 
 import (
 	"app/adv-http/configs"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -24,7 +25,14 @@ func NewAuthHandler(router *http.ServeMux, deps *AuthHendlerDeps) {
 func (handler *AuthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		secret := handler.Config.Auth.Secret
-		fmt.Fprintf(w, "Login! %s", secret)
+		fmt.Println(secret)
+		res := LoginResponse{
+			Token: "1234567890",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(201)
+		json.NewEncoder(w).Encode(res)
+
 	}
 }
 
