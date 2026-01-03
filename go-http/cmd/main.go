@@ -8,6 +8,7 @@ import (
 	"app/adv-http/internal/auth"
 	"app/adv-http/internal/link"
 	"app/adv-http/pkg/db"
+	"app/adv-http/pkg/middleware"
 )
 
 func main() {
@@ -31,7 +32,7 @@ func main() {
 	fmt.Println("Server is running on port 8081")
 	server := &http.Server{
 		Addr:    ":8081",
-		Handler: router,
+		Handler: middleware.Logging(router),
 	}
 	server.ListenAndServe()
 }
