@@ -12,7 +12,7 @@ type Link struct {
 	Hash string `gorm:"uniqueIndex" json:"hash"`
 }
 
-func newLink(url string) *Link {
+func NewLink(url string) *Link {
 	return &Link{
 		URL:  url,
 		Hash: RandStringRunes(10),

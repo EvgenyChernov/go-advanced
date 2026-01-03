@@ -1,6 +1,8 @@
 package link
 
 import (
+	"app/adv-http/pkg/request"
+	"app/adv-http/pkg/response"
 	"fmt"
 	"net/http"
 )
@@ -24,10 +26,17 @@ func NewLinkHandler(router *http.ServeMux, deps LinkHendlerDeps) {
 
 func (handler *LinkHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		// handler.LinkRepository.Create(&Link{
-		// 	URL:  req.URL.String(),
-		// 	Hash: req.URL.Path,
-		// })
+		body, err := request.HandleBody[LinkCreateRequest](w, req)
+		if err != nil {
+			return
+		}
+		link := NewLink(body.Url)
+		Createdlink, err := handler.LinkRepository.Create(link)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		response.JsonResponse(w, Createdlink, 200)
 	}
 }
 
