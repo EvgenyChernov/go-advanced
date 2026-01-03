@@ -3,8 +3,10 @@ package link
 import (
 	"app/adv-http/pkg/request"
 	"app/adv-http/pkg/response"
-	"fmt"
 	"net/http"
+	"strconv"
+
+	"gorm.io/gorm"
 )
 
 type LinkHendlerDeps struct {
@@ -61,14 +63,42 @@ func (handler *LinkHandler) GoTo() func(http.ResponseWriter, *http.Request) {
 
 func (handler *LinkHandler) Delete() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
-		id := req.PathValue("id")
-		fmt.Println(id)
-
+		idString := req.PathValue("id")
+		id, err := strconv.ParseInt(idString, 10, 64)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err = handler.LinkRepository.Delete(uint(id))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		response.JsonResponse(w, nil, 200)
 	}
 }
 
 func (handler *LinkHandler) Update() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
-
+		body, err := request.HandleBody[LinkUpdateRequest](w, req)
+		if err != nil {
+			return
+		}
+		idString := req.PathValue("id")
+		id, err := strconv.ParseInt(idString, 10, 64)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		link, err := handler.LinkRepository.Update(Link{
+			Model: gorm.Model{ID: uint(id)},
+			URL:   body.Url,
+			Hash:  body.Hash,
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		response.JsonResponse(w, link, 200)
 	}
 }

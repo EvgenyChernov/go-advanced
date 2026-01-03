@@ -8,6 +8,14 @@ type LinkRepository struct {
 	Database *db.Db
 }
 
+func (repo *LinkRepository) Update(link Link) (*Link, error) {
+	result := repo.Database.DB.Updates(link)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &link, nil
+}
+
 func NewLinkRepository(database *db.Db) *LinkRepository {
 	return &LinkRepository{
 		Database: database,
@@ -29,4 +37,12 @@ func (repo *LinkRepository) GetByHash(hash string) (*Link, error) {
 		return nil, result.Error
 	}
 	return &link, nil
+}
+
+func (repo *LinkRepository) Delete(id uint) error {
+	result := repo.Database.DB.Delete(&Link{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }
