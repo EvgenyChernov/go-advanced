@@ -31,6 +31,13 @@ func (handler *LinkHandler) Create() http.HandlerFunc {
 			return
 		}
 		link := NewLink(body.Url)
+		for {
+			existingLink, _ := handler.LinkRepository.GetByHash(link.Hash)
+			if existingLink == nil {
+				break
+			}
+			link.GenerateHash()
+		}
 		Createdlink, err := handler.LinkRepository.Create(link)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
