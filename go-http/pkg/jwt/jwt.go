@@ -32,11 +32,27 @@ func (j *JWT) Create(data JWTData) (string, error) {
 
 func (j *JWT) Parse(tokenString string) (bool, *JWTData) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Проверяем метод подписи (должен быть HMAC)
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
 		return []byte(j.Secret), nil
 	})
-	if err != nil {
+	if err != nil || token == nil {
 		return false, nil
 	}
-	email := token.Claims.(jwt.MapClaims)["email"]
-	return token.Valid, &JWTData{Email: email.(string)}
+	
+	// Безопасная проверка типа claims
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return false, nil
+	}
+	
+	// Безопасное извлечение email
+	email, ok := claims["email"].(string)
+	if !ok || email == "" {
+		return false, nil
+	}
+	
+	return true, &JWTData{Email: email}
 }

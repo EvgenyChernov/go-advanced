@@ -35,6 +35,14 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 
 		email, err := handler.AuthService.Login(body.Email, body.Password)
 		if err != nil {
+			// Определяем код статуса в зависимости от типа ошибки
+			statusCode := http.StatusUnauthorized
+			if err == ErrUserNotFound || err == ErrInvalidPassword {
+				statusCode = http.StatusUnauthorized
+			} else {
+				statusCode = http.StatusInternalServerError
+			}
+			http.Error(w, err.Error(), statusCode)
 			return
 		}
 		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(jwt.JWTData{Email: email})
