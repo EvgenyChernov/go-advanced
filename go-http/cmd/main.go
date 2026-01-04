@@ -7,6 +7,7 @@ import (
 	"app/adv-http/configs"
 	"app/adv-http/internal/auth"
 	"app/adv-http/internal/link"
+	"app/adv-http/internal/user"
 	"app/adv-http/pkg/db"
 	"app/adv-http/pkg/middleware"
 )
@@ -19,10 +20,15 @@ func main() {
 
 	// repositories
 	linkRepository := link.NewLinkRepository(database)
+	userRepository := user.NewUserRepository(database)
 
-	// hello.NewHelloHandler(router)
+	// services
+	authService := auth.NewAuthService(userRepository)
+
+	// handlers
 	auth.NewAuthHandler(router, &auth.AuthHendlerDeps{
-		Config: config,
+		Config:      config,
+		AuthService: authService,
 	})
 
 	link.NewLinkHandler(router, link.LinkHendlerDeps{
