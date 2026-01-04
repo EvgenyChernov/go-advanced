@@ -2,6 +2,7 @@ package auth
 
 import (
 	"app/adv-http/configs"
+	"app/adv-http/pkg/jwt"
 	"app/adv-http/pkg/request"
 	"app/adv-http/pkg/response"
 	"fmt"
@@ -37,10 +38,16 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-
+		jwt := jwt.NewJWT(handler.Config.Auth.Secret)
+		token, err := jwt.Create(email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		fmt.Println("token: успешно получен", token)
 		fmt.Println("email: успешно получен", email)
 		data := LoginResponse{
-			Token: "1234567890",
+			Token: token,
 		}
 		response.JsonResponse(w, data, 200)
 	}
@@ -52,6 +59,20 @@ func (handler *AuthHandler) Register() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		handler.AuthService.Register(body.Email, body.Password, body.Name)
+		email, err := handler.AuthService.Register(body.Email, body.Password, body.Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		token, err := jwt.NewJWT(handler.Config.Auth.Secret).Create(email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		data := RegisterResponse{
+			Token: token,
+		}
+		response.JsonResponse(w, data, 200)
+
 	}
 }

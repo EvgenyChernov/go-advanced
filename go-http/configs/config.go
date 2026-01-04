@@ -46,7 +46,7 @@ func LoadConfig() *Config {
 			Dsn: getEnv("DSN", ""),
 		},
 		Auth: AuthConfig{
-			Secret: getEnv("TOKEN", ""),
+			Secret: getEnv("SECRET", ""),
 		},
 	}
 }
