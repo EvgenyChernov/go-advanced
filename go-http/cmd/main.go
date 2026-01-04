@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"app/adv-http/configs"
 	"app/adv-http/internal/auth"
@@ -13,6 +15,25 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		time.Sleep(3 * time.Second)
+	}()
+
+	select {
+	case <-done:
+		fmt.Println("done")
+
+	case <-ctxWithTimeout.Done():
+		fmt.Println("context done")
+	}
+}
+
+func main2() {
 
 	config := configs.LoadConfig()
 	database := db.NewDB(config)
