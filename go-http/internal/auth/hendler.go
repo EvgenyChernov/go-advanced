@@ -32,11 +32,15 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		fmt.Println(body)
-		secret := handler.Config.Auth.Secret
-		fmt.Println(secret)
+
+		email, err := handler.AuthService.Login(body.Email, body.Password)
+		if err != nil {
+			return
+		}
+
+		fmt.Println("email: успешно получен", email)
 		data := LoginResponse{
-			Token: secret,
+			Token: "1234567890",
 		}
 		response.JsonResponse(w, data, 200)
 	}
