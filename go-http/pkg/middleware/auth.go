@@ -14,11 +14,24 @@ const (
 	ContextKeyEmail key = "ContextKeyEmail"
 )
 
+func writeUnauthorized(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+}
+
 func IsAuthenticated(next http.Handler, config *configs.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
+		if !strings.HasPrefix(authHeader, "Baerer ") {
+			writeUnauthorized(w)
+			return
+		}
 		token := strings.TrimPrefix(authHeader, "Bearer ")
-		_, data := jwt.NewJWT(config.Auth.Secret).Parse(token)
+		isValid, data := jwt.NewJWT(config.Auth.Secret).Parse(token)
+		if !isValid {
+			writeUnauthorized(w)
+			return
+		}
 		ctx := context.WithValue(r.Context(), ContextKeyEmail, data.Email)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
