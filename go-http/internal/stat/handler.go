@@ -2,14 +2,14 @@ package stat
 
 import (
 	"app/adv-http/configs"
-	"fmt"
+	"app/adv-http/pkg/response"
 	"net/http"
 	"time"
 )
 
 const (
-	FilterByDay   = "day"
-	FilterByMonth = "month"
+	GroupByDay   = "day"
+	GroupByMonth = "month"
 )
 
 type StatHandlerDeps struct {
@@ -41,10 +41,11 @@ func (h *StatHandler) GetStat() func(http.ResponseWriter, *http.Request) {
 			return
 		}
 		by := req.URL.Query().Get("by")
-		if by != FilterByDay && by != FilterByMonth {
+		if by != GroupByDay && by != GroupByMonth {
 			http.Error(w, "Invalid filter", http.StatusBadRequest)
 			return
 		}
-		fmt.Println(from, to, by)
+		stats := h.StatRepository.GetStat(from, to, by)
+		response.JsonResponse(w, stats, http.StatusOK)
 	}
 }
