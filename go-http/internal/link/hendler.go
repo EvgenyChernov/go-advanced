@@ -2,7 +2,7 @@ package link
 
 import (
 	"app/adv-http/configs"
-	"app/adv-http/internal/stat"
+	"app/adv-http/pkg/di"
 	"app/adv-http/pkg/middleware"
 	"app/adv-http/pkg/request"
 	"app/adv-http/pkg/response"
@@ -16,11 +16,11 @@ import (
 type LinkHendlerDeps struct {
 	LinkRepository *LinkRepository
 	Config         *configs.Config
-	StatRepository *stat.StatRepository
+	StatRepository di.IStatRepository
 }
 type LinkHandler struct {
 	LinkRepository *LinkRepository
-	StatRepository *stat.StatRepository
+	StatRepository di.IStatRepository
 }
 
 func (handler *LinkHandler) GoAll() func(http.ResponseWriter, *http.Request) {
