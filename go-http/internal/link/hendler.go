@@ -122,7 +122,7 @@ func (handler *LinkHandler) Update() http.HandlerFunc {
 			return
 		}
 		link, err := handler.LinkRepository.Update(Link{
-			Model: gorm.Model{ID: uint(id)},
+			Model: gorm.Model{Id: uint(id)},
 			URL:   body.Url,
 			Hash:  body.Hash,
 		})
