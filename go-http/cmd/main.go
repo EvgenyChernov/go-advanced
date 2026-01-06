@@ -14,8 +14,7 @@ import (
 	"app/adv-http/pkg/middleware"
 )
 
-func main() {
-
+func App() http.Handler {
 	config := configs.LoadConfig()
 	database := db.NewDB(config)
 	statRepository := stat.NewStatRepository(database)
@@ -53,11 +52,16 @@ func main() {
 		middleware.CORS,
 		middleware.Logging,
 	)
+	go statService.AddClick()
+	return stack(router)
+}
+
+func main() {
+	app := App()
 	server := &http.Server{
 		Addr:    ":8081",
-		Handler: stack(router),
+		Handler: app,
 	}
 
-	go statService.AddClick()
 	server.ListenAndServe()
 }
