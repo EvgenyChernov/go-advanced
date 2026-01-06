@@ -7,6 +7,7 @@ import (
 	"app/adv-http/configs"
 	"app/adv-http/internal/auth"
 	"app/adv-http/internal/link"
+	"app/adv-http/internal/stat"
 	"app/adv-http/internal/user"
 	"app/adv-http/pkg/db"
 	"app/adv-http/pkg/event"
@@ -17,7 +18,7 @@ func main() {
 
 	config := configs.LoadConfig()
 	database := db.NewDB(config)
-	// statRepository := stat.NewStatRepository(database)
+	statRepository := stat.NewStatRepository(database)
 	router := http.NewServeMux()
 	eventBus := event.NewEventBus()
 	// repositories
@@ -26,7 +27,10 @@ func main() {
 
 	// services
 	authService := auth.NewAuthService(userRepository)
-
+	statService := stat.NewStatService(stat.StatServiceDeps{
+		EventBus:       eventBus,
+		StatRepository: statRepository,
+	})
 	// handlers
 	auth.NewAuthHandler(router, &auth.AuthHendlerDeps{
 		Config:      config,
@@ -39,6 +43,11 @@ func main() {
 		EventBus:       eventBus,
 	})
 
+	stat.NewStatHandler(router, stat.StatHandlerDeps{
+		StatRepository: statRepository,
+		Config:         config,
+	})
+
 	fmt.Println("Server is running on port 8081")
 	stack := middleware.Chain(
 		middleware.CORS,
@@ -48,5 +57,7 @@ func main() {
 		Addr:    ":8081",
 		Handler: stack(router),
 	}
+
+	go statService.AddClick()
 	server.ListenAndServe()
 }
