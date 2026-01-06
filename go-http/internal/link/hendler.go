@@ -2,7 +2,7 @@ package link
 
 import (
 	"app/adv-http/configs"
-	"app/adv-http/pkg/di"
+	"app/adv-http/pkg/event"
 	"app/adv-http/pkg/middleware"
 	"app/adv-http/pkg/request"
 	"app/adv-http/pkg/response"
@@ -16,11 +16,11 @@ import (
 type LinkHendlerDeps struct {
 	LinkRepository *LinkRepository
 	Config         *configs.Config
-	StatRepository di.IStatRepository
+	EventBus       *event.EventBus
 }
 type LinkHandler struct {
 	LinkRepository *LinkRepository
-	StatRepository di.IStatRepository
+	EventBus       *event.EventBus
 }
 
 func (handler *LinkHandler) GoAll() func(http.ResponseWriter, *http.Request) {
@@ -47,7 +47,7 @@ func (handler *LinkHandler) GoAll() func(http.ResponseWriter, *http.Request) {
 func NewLinkHandler(router *http.ServeMux, deps LinkHendlerDeps) {
 	handler := &LinkHandler{
 		LinkRepository: deps.LinkRepository,
-		StatRepository: deps.StatRepository,
+		EventBus:       deps.EventBus,
 	}
 	router.HandleFunc("POST /link", handler.Create())
 	router.HandleFunc("PATCH /link/{id}", handler.Update())
@@ -87,7 +87,11 @@ func (handler *LinkHandler) GoTo() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-		handler.StatRepository.AddClick(link.Id)
+		// handler.StatRepository.AddClick(link.Id)
+		go handler.EventBus.Publish(event.Event{
+			Type: event.EventLinkVisited,
+			Data: link.Id,
+		})
 		http.Redirect(w, req, link.URL, http.StatusTemporaryRedirect)
 	}
 }
