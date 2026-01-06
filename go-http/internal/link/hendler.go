@@ -2,6 +2,7 @@ package link
 
 import (
 	"app/adv-http/configs"
+	"app/adv-http/internal/stat"
 	"app/adv-http/pkg/middleware"
 	"app/adv-http/pkg/request"
 	"app/adv-http/pkg/response"
@@ -15,9 +16,11 @@ import (
 type LinkHendlerDeps struct {
 	LinkRepository *LinkRepository
 	Config         *configs.Config
+	StatRepository *stat.StatRepository
 }
 type LinkHandler struct {
 	LinkRepository *LinkRepository
+	StatRepository *stat.StatRepository
 }
 
 func (handler *LinkHandler) GoAll() func(http.ResponseWriter, *http.Request) {
@@ -44,6 +47,7 @@ func (handler *LinkHandler) GoAll() func(http.ResponseWriter, *http.Request) {
 func NewLinkHandler(router *http.ServeMux, deps LinkHendlerDeps) {
 	handler := &LinkHandler{
 		LinkRepository: deps.LinkRepository,
+		StatRepository: deps.StatRepository,
 	}
 	router.HandleFunc("POST /link", handler.Create())
 	router.HandleFunc("PATCH /link/{id}", handler.Update())
@@ -83,6 +87,7 @@ func (handler *LinkHandler) GoTo() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
+		handler.StatRepository.AddClick(link.Id)
 		http.Redirect(w, req, link.URL, http.StatusTemporaryRedirect)
 	}
 }

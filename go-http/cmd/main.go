@@ -7,6 +7,7 @@ import (
 	"app/adv-http/configs"
 	"app/adv-http/internal/auth"
 	"app/adv-http/internal/link"
+	"app/adv-http/internal/stat"
 	"app/adv-http/internal/user"
 	"app/adv-http/pkg/db"
 	"app/adv-http/pkg/middleware"
@@ -16,6 +17,7 @@ func main() {
 
 	config := configs.LoadConfig()
 	database := db.NewDB(config)
+	statRepository := stat.NewStatRepository(database)
 	router := http.NewServeMux()
 
 	// repositories
@@ -34,6 +36,7 @@ func main() {
 	link.NewLinkHandler(router, link.LinkHendlerDeps{
 		LinkRepository: linkRepository,
 		Config:         config,
+		StatRepository: statRepository,
 	})
 
 	fmt.Println("Server is running on port 8081")

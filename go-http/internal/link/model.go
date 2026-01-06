@@ -1,7 +1,7 @@
 package link
 
 import (
-	"app/adv-http/internal/stat/model"
+	"app/adv-http/internal/stat"
 	"math/rand"
 
 	"gorm.io/gorm"
