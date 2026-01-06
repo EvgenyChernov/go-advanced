@@ -12,3 +12,8 @@ type LinkUpdateRequest struct {
 type LinkCreateResponse struct {
 	Hash string `json:"hash"`
 }
+
+type LinkAllLinksResponse struct {
+	Links []Link `json:"links"`
+	Count int64  `json:"count"`
+}

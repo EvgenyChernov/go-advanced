@@ -20,6 +20,27 @@ type LinkHandler struct {
 	LinkRepository *LinkRepository
 }
 
+func (handler *LinkHandler) GoAll() func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
+		limitInt, err := strconv.Atoi(req.URL.Query().Get("limit"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		offsetInt, err := strconv.Atoi(req.URL.Query().Get("offset"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		links := handler.LinkRepository.GetAll(limitInt, offsetInt)
+		count := handler.LinkRepository.Count()
+		response.JsonResponse(w, LinkAllLinksResponse{
+			Links: links,
+			Count: count,
+		}, 200)
+	}
+}
+
 func NewLinkHandler(router *http.ServeMux, deps LinkHendlerDeps) {
 	handler := &LinkHandler{
 		LinkRepository: deps.LinkRepository,
@@ -28,6 +49,7 @@ func NewLinkHandler(router *http.ServeMux, deps LinkHendlerDeps) {
 	router.HandleFunc("PATCH /link/{id}", handler.Update())
 	router.Handle("DELETE /link/{id}", middleware.IsAuthenticated(handler.Delete(), deps.Config))
 	router.HandleFunc("GET /link/{hash}", handler.GoTo())
+	router.HandleFunc("GET /link", handler.GoAll())
 }
 
 func (handler *LinkHandler) Create() http.HandlerFunc {
